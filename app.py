@@ -6,13 +6,9 @@ from pathlib import Path
 
 app = FastAPI()
 
-# Словарь для хранения подключений по комнатам (чатам)
 connections: Dict[str, List[WebSocket]] = {}
-
-# Маршрут для статических файлов
 app.mount("/static", StaticFiles(directory="templates"), name="static")
 
-# Главная страница
 @app.get("/")
 async def get():
     html_content = Path("templates/index.html").read_text(encoding="utf-8")
