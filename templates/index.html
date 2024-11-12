@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    
+    <!-- Поля для ввода данных -->
+    <label for="chatName">Название чата:</label>
+    <input type="text" id="chatName">
+    
+    <label for="username">Имя:</label>
+    <input type="text" id="username">
+    
+    <label for="message">Текст:</label>
+    <input type="text" id="message">
+    
+    <button onclick="sendMessage()">Отправить сообщение</button>
+    
+    <!-- Название текущего чата -->
+    <h2 id="currentChatName"></h2>
+    
+    <h3>Сообщения:</h3>
+    <ul id="messages"></ul>
+
+    <script>
+        let websocket = null;
+
+        function sendMessage() {
+            const chatName = document.getElementById("chatName").value;
+            const username = document.getElementById("username").value;
+            const message = document.getElementById("message").value;
+            const data = `${username}: ${message}`;
+
+            document.getElementById("currentChatName").textContent = `Чат: ${chatName}`;
+
+            if (!websocket || websocket.readyState === WebSocket.CLOSED) {
+                websocket = new WebSocket(`ws://localhost:8000/ws/${chatName}`);
+                websocket.onmessage = function(event) {
+                    const messages = document.getElementById("messages");
+                    const messageElement = document.createElement("li");
+                    messageElement.textContent = event.data;
+                    messages.appendChild(messageElement);
+                };
+            }
+            
+            // Отправляем сообщение в WebSocket
+            websocket.onopen = function() {
+                websocket.send(data);
+            };
+
+            if (websocket.readyState === WebSocket.OPEN) {
+                websocket.send(data);
+            }
+        }
+    </script>
+</body>
+</html>
